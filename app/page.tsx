@@ -1,65 +1,712 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+import { useEffect, useRef, useState } from 'react'
+import { motion, useAnimation, useInView, useScroll, useTransform } from 'framer-motion'
+import { Car, Zap, Truck, Search, Menu, CarFront, CarTaxiFront, Factory, DollarSign, ShieldCheck, Headphones } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
+} from '@/components/ui/select'
+import {
+Sheet,
+SheetContent,
+SheetHeader,
+SheetTitle,
+SheetTrigger,
+} from "@/components/ui/sheet"
+
+const carImages = {
+lamborghini: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-lynxexotics-3802510.jpg-zWCJEcmVKByRkAyQ6bqKs37jZAckM1.jpeg",
+mustang: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-avinashpatel-544542.jpg-HTyybgdx0RjHY8JxIYpO5HEhPtYDdS.jpeg",
+mercedes: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikebirdy-112460.jpg-z9HvdhPN3QAoRWxG9YmpzYzo6RbeZ8.jpeg",
+audi: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-pixabay-38637.jpg-tABvWWL2hQzILHt2lO1RZCdc1v4ekd.jpeg",
+alfa: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-zvolskiy-1637859.jpg-vuLCql5iJC47driDbt7Ck5tXv7PDYt.jpeg",
+rangeRover: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikebirdy-116675.jpg-b0seStk8jyR5zNVSyi34lHtOvpAFL2.jpeg",
+audiS5: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikebirdy-244206.jpg-lFUGaUZeUBCl93t4SAd63Sr6vrLeJ3.jpeg",
+showroom: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download%20(2).jpg-wxUtGqYn6kVzxYuYkB26fgSJ2Zvlf2.jpeg",
+polestar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Chemisch%20best%C3%A4ndige,%20reinigungsf%C3%A4hige%20Ausstellung%20f%C3%BCr%20Polestars%20mittels%20eines%20Polyurethanbelags.jpg-CKQaBisKe3tB43rlXhbdn7HvE1wd2n.jpeg",
+posters: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Super%20Car%20Posters%20For%20Men,Racing%20Car%20Wall%20Art,Sports%20Car%20Posters%20For%20Boys%20Room,Car%20Prints%20Pictures%20For%20Walls%20Aesthetic(Unframe,6PCS,8x12inch).jpg-6RYjxYfH8qyP2MwBJtedAQGE2LdqZP.jpeg",
+ferrari: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images-removebg-preview-valOApnub8YGhPD65iAuZsJ3V4sDMT.png",
+tesla: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images-removebg-preview%20(1)-MX6nbK8HzUrEQandupjp6oPllMuBy1.png",
+amgGT: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download-removebg-preview%20(3)-gcOLl22Qg7IA6LhwkctkpVnfTww4Wh.png"
+}
+
+const brandLogos = [
+{ 
+name: 'Audi', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Audi_Quattro_Car_Audi_R8_Audi_Q7_PNG_-_Free_Download-removebg-preview-g3KRSyp0eXP5hfs0KKKpHNf0MvAukS.png'
+},
+{ 
+name: 'Ford Mustang', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/4a0e0edd2e3df9c13aa0e51ab6233a19-removebg-preview-removebg-preview%20(1)-vblTW2D2XqLoxG4TPx6Ap73a3HbiUU.png'
+},
+{ 
+name: 'Hyundai', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download-removebg-preview%20(2)-Qh0NengWLhRZ60p2sUNFsnbpUAOAJi.png'
+},
+{ 
+name: 'Tesla', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f22aa390c97c15c2a0ed44f25ab3325b-removebg-preview-removebg-preview-JgVU2wiNd2gVTDn8aCjRfaE8XQ99sI.png'
+},
+{ 
+name: 'Volkswagen', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download-removebg-preview-V7yan9MjIp11uMTSfgIpbk4tflsafP.png'
+},
+{ 
+name: 'Land Rover', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2014_Land_Rover_Range_Rover_Sport_Rover_Company_Logo_Car_PNG_-_Free_Download-removebg-preview-ECqjj5mXGQ7roPWfxkjsahwRNC0t1p.png'
+},
+{ 
+name: 'Porsche', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Porsche_918_Spyder_Car_Logo_Porsche_911_PNG_-_Free_Download-removebg-preview-yegpKLiXDt8OdhAycAu39RtcdnweN4.png'
+},
+{ 
+name: 'Ford', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/download-removebg-preview%20(1)-qSLvr4Q9JQSOfccOjBRW9LkaCsTbAh.png'
+},
+{ 
+name: 'Mercedes-Benz', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Benz_Car_Vehicle_Bmw_Mercedes-benz_Mercedes_Logo_Clipart_-_Mercedes_Benz_Logo_Transparent_-_Png_Download___4164848__-_PinClipart-removebg-preview-kahUBRbyonUcm3o5bCCWjiPmQjZPyu.png'
+},
+{ 
+name: 'BMW', 
+logo: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BMW_logo_PNG-removebg-preview-PSDUnzGelpjkESadmHzBfuiks1UvYE.png'
+}
+]
+
+const vehicleTypes = [
+{ name: 'SUV', icon: CarFront },
+{ name: 'Sedan', icon: Car },
+{ name: 'Hatchback', icon: CarTaxiFront },
+{ name: 'Coupe', icon: Car },
+{ name: 'Hybrid', icon: Zap },
+{ name: 'Convertible', icon: Car },
+{ name: 'Van', icon: Factory },
+{ name: 'Truck', icon: Truck },
+{ name: 'Electric', icon: Zap },
+]
+
+export default function Component() {
+const [activeTab, setActiveTab] = useState('in-stock')
+const heroRef = useRef(null)
+const { scrollYProgress } = useScroll()
+const y = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
+const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+const isInView = useInView(heroRef)
+  const carouselControls = useAnimation()
+  
+  const [isOpen, setIsOpen] = useState(false)
+  
+const scrollToSection = (id: string) => {
+document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
+
+useEffect(() => {
+const sequence = async () => {
+  await carouselControls.start({
+    x: [0, -2000],
+    transition: { duration: 20, ease: 'linear' },
+  })
+  carouselControls.set({ x: 0 })
+  sequence()
+}
+sequence()
+}, [carouselControls])
+
+return (
+<div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+  {/* Navigation Bar */}
+<nav className="fixed top-0 z-80 w-full bg-white shadow-md">
+  <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+
+    {/* Logo */}
+    <Link href="/" className="text-xl font-semibold text-blue-600">
+      CarRental
+    </Link>
+
+    {/* Desktop Menu */}
+    <div className="hidden md:flex items-center gap-8">
+      {['Home', 'Cars', 'Best Sellers', 'About', 'Contact'].map((item) => (
+        <motion.a
+          key={item}
+          href={`#${item.toLowerCase().replace(' ', '-')}`}
+          className="text-sm font-semibold text-gray-700 hover:text-blue-600 whitespace-nowrap"
+          whileHover={{ scale: 1.05 }}
+          onClick={(e) => {
+            e.preventDefault()
+            scrollToSection(item.toLowerCase().replace(' ', '-'))
+          }}
+        >
+          {item}
+        </motion.a>
+      ))}
+    </div>
+
+    {/* Mobile Menu */}
+    <div className="md:hidden relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 border rounded-md"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-12 w-48 bg-white shadow-lg rounded-lg p-4 flex flex-col gap-3 z-50">
+          {['Home', 'Cars', 'Best Sellers', 'About', 'Contact'].map((item) => (
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              key={item}
+              href={`#${item.toLowerCase().replace(' ', '-')}`}
+              className="text-gray-600 hover:text-blue-600"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToSection(item.toLowerCase().replace(' ', '-'))
+                setIsOpen(false)
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              {item}
+            </a>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      )}
+    </div>
+
+  </div>
+</nav>
+
+  {/* Hero Section */}
+<section id="home" ref={heroRef} className="relative min-h-screen overflow-hidden pt-16">
+
+  {/* Background */}
+  <motion.div style={{ opacity }} className="absolute inset-0 z-0">
+    <Image
+      src={carImages.showroom}
+      alt="Luxury Car Showroom"
+      fill
+      className="object-cover opacity-60"
+      priority
+    />
+  </motion.div>
+
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 to-blue-900/30 z-10"></div>
+
+  {/* Content */}
+  <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4 text-center text-white">
+
+    {/* TEXT */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* HEADING */}
+<motion.h1
+  initial={{ opacity: 0, y: 60, scale: 0.92 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{
+    duration: 1.2,
+    ease: [0.22, 1, 0.36, 1] // 🔥 smooth cubic-bezier
+  }}
+  whileHover={{
+    scale: 1.04,
+    transition: { duration: 0.4, ease: 'easeOut' }
+  }}
+  className="mb-4 text-5xl font-bold md:text-7xl leading-tight text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+>
+  Find Your Dream Car
+</motion.h1>
+
+      {/* SUBTEXT (BIGGER) */}
+      <p className="mb-5 text-2xl italic md:text-3xl text-black transition hover:text-white">
+        Discover the perfect vehicle for your lifestyle
+      </p>
+
+      {/* QUOTE (BIGGER + HOVER) */}
+      <p className="mb-8 text-lg md:text-xl font-semibold italic text-white max-w-2xl mx-auto transition duration-300 hover:scale-105">
+        “Racing is life. Everything else is just waiting.”
+        <span className="block text-base md:text-lg font-medium text-gray-300 mt-2">
+          — Steve McQueen
+        </span>
+      </p>
+    </motion.div>
+
+    {/* BUTTONS (BIGGER + HOVER EFFECTS) */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="flex flex-col sm:flex-row gap-4"
+    >
+<Button
+  className="px-8 py-3 text-base bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-white rounded-lg shadow-lg"
+  onClick={() => scrollToSection('cars')}
+>
+  Explore Cars
+</Button>
+
+<Button
+  className="px-8 py-3 text-base border border-white text-white hover:bg-white hover:text-blue-900 hover:scale-105 transition-all duration-300 rounded-lg"
+  onClick={() => scrollToSection('about')}
+>
+  Learn More
+</Button>
+    </motion.div>
+
+  </div>
+
+</section>
+  {/* Feature Icons Section */}
+  <section className="bg-white py-16">
+    <div className="container mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="bg-blue-100 p-4 rounded-full mb-4">
+            <DollarSign className="h-8 w-8 text-blue-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Best Price Guarantee</h3>
+          <p className="text-gray-600">We offer competitive prices on our 100,000+ vehicle inventory.</p>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="bg-green-100 p-4 rounded-full mb-4">
+            <ShieldCheck className="h-8 w-8 text-green-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Trusted & Secure</h3>
+          <p className="text-gray-600">Our secure transaction process ensures your peace of mind.</p>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="bg-purple-100 p-4 rounded-full mb-4">
+            <Headphones className="h-8 w-8 text-purple-600" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">24/7 Support</h3>
+          <p className="text-gray-600">Our team is always here to help with any questions or concerns.</p>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+
+  {/* Browse by Type */}
+  <section id="cars" className="py-20">
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="mx-auto max-w-6xl px-4"
+    >
+      <h2 className="mb-12 text-center text-3xl font-bold">Browse by Type</h2>
+      <div className="grid grid-cols-3 gap-8 md:grid-cols-5 lg:grid-cols-9">
+        {vehicleTypes.map((type) => (
+          <motion.div
+            key={type.name}
+            whileHover={{ scale: 1.05 }}
+            className="flex cursor-pointer flex-col items-center gap-2"
+          >
+            <div className="rounded-full bg-white p-4 shadow-md">
+              <type.icon className="h-6 w-6 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium">{type.name}</span>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  </section>
+
+  {/* Brand Logo Carousel */}
+  <section className="overflow-hidden py-20 bg-gray-50">
+    <div className="mx-auto max-w-6xl px-4">
+      <h2 className="mb-12 text-center text-3xl font-bold">Our Trusted Brands</h2>
+      <motion.div
+        className="flex"
+        animate={carouselControls}
+      >
+        {[...brandLogos, ...brandLogos].map((brand, index) => (
+          <motion.div
+            key={`${brand.name}-${index}`}
+            className="mx-8 flex w-40 flex-shrink-0 items-center justify-center"
+            whileHover={{ scale: 1.1 }}
+          >
+            <Image 
+              src={brand.logo} 
+              alt={`${brand.name} logo`}
+              width={100} 
+              height={100}
+              className="object-contain h-16 w-auto"
+            />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  </section>
+
+  {/* CTA Section */}
+  <section className="py-20">
+    <div className="mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-2">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        className="rounded-2xl bg-blue-50 p-8"
+      >
+        <h3 className="mb-4 text-2xl font-bold">Are You Looking For a Car?</h3>
+        <p className="mb-6 text-gray-600">We are committed to providing our customers with exceptional service.</p>
+        <Button>Get Started</Button>
+      </motion.div>
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        className="rounded-2xl bg-pink-50 p-8"
+      >
+        <h3 className="mb-4 text-2xl font-bold">Do You Want to Sell a Car?</h3>
+        <p className="mb-6 text-gray-600">We are committed to providing our customers with exceptional service.</p>
+        <Button className="border border-gray-300 px-5 py-2 rounded-md hover:bg-gray-100 transition">
+          Get Started
+        </Button>
+      </motion.div>
+    </div>
+  </section>
+
+  {/* Most Searched Cars */}
+  <section className="py-20 bg-gray-50">
+  <div className="mx-auto max-w-6xl px-4">
+
+    {/* Heading */}
+    <h2 className="mb-12 text-center text-3xl font-bold">
+      The Most Searched Cars
+    </h2>
+
+    {/* Tabs */}
+    <div className="mb-8 flex flex-wrap justify-center gap-4">
+      {['In Stock', 'Sedan', 'SUV', 'Convertible'].map((tab) => (
+<Button
+  key={tab}
+  className={`px-4 py-2 ${
+    activeTab === tab.toLowerCase().replace(' ', '-')
+      ? 'bg-blue-600 text-white'
+      : 'border border-gray-300 text-gray-700'
+  }`}
+  onClick={() =>
+    setActiveTab(tab.toLowerCase().replace(' ', '-'))
+  }
+>
+  {tab}
+</Button>
+      ))}
+    </div>
+
+    {/* Cards */}
+    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        {
+          name: 'Lamborghini Huracán',
+          price: 250000,
+          miles: '1k',
+          image: carImages.lamborghini,
+        },
+        {
+          name: 'Ford Mustang GT',
+          price: 45000,
+          miles: '15k',
+          image: carImages.mustang,
+        },
+        {
+          name: 'Mercedes-AMG GT',
+          price: 150000,
+          miles: '5k',
+          image: carImages.mercedes,
+        },
+        {
+          name: 'Audi A1 Sport',
+          price: 35000,
+          miles: '12k',
+          image: carImages.audi,
+        },
+      ].map((car) => (
+        <motion.div
+          key={car.name}
+          whileHover={{ y: -10 }}
+          className="flex flex-col overflow-hidden rounded-xl bg-white shadow-lg transition"
+        >
+          {/* Image */}
+          <Image
+            src={car.image}
+            alt={car.name}
+            width={400}
+            height={300}
+            className="h-48 w-full object-cover"
+          />
+
+          {/* Content */}
+          <div className="flex flex-col flex-1 p-6">
+
+            <h3 className="mb-2 text-lg font-bold">
+              {car.name}
+            </h3>
+
+            <div className="mb-4 flex items-center gap-3 text-sm text-gray-600">
+              <span>{car.miles} Miles</span>
+              <span>Petrol</span>
+              <span>Automatic</span>
+            </div>
+
+            {/* Bottom (FIXED ALIGNMENT) */}
+            <div className="mt-auto flex items-center justify-between">
+
+              <span className="text-lg font-bold">
+                ${car.price.toLocaleString()}
+              </span>
+
+              <Button className="px-4 py-2 text-sm">
+                View Details
+              </Button>
+
+            </div>
+
+          </div>
+        </motion.div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+  {/* About Us Section */}
+<section id="about" className="bg-white py-16">
+  <div className="mx-auto max-w-6xl px-4">
+
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="grid items-center gap-10 md:grid-cols-2"
+    >
+
+      {/* TEXT */}
+      <div>
+        <h2 className="mb-4 text-2xl md:text-3xl font-bold">
+          About Us
+        </h2>
+
+        <p className="mb-3 text-sm md:text-base text-gray-600 leading-relaxed">
+          At CarRental, we provide a seamless and reliable car rental experience with a focus on quality and customer satisfaction.
+        </p>
+
+        <p className="mb-6 text-sm md:text-base text-gray-600 leading-relaxed">
+          From city drives to luxury travel, our wide range of vehicles ensures comfort, affordability, and flexibility for every journey.
+        </p>
+
+        {/* STATS WITH HOVER */}
+        <div className="grid grid-cols-3 gap-4 text-center">
+
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            className="p-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition shadow-sm cursor-pointer"
+          >
+            <h3 className="text-xl font-bold text-blue-600">500+</h3>
+            <p className="text-xs text-gray-600">Clients</p>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            className="p-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition shadow-sm cursor-pointer"
+          >
+            <h3 className="text-xl font-bold text-blue-600">120+</h3>
+            <p className="text-xs text-gray-600">Cars</p>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            className="p-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition shadow-sm cursor-pointer"
+          >
+            <h3 className="text-xl font-bold text-blue-600">4.9★</h3>
+            <p className="text-xs text-gray-600">Reviews</p>
+          </motion.div>
+
+        </div>
+      </div>
+
+      {/* IMAGE WITH HOVER */}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className="flex justify-center"
+      >
+        <div className="w-full max-w-[380px] h-[220px] md:h-[260px] overflow-hidden rounded-xl shadow group">
+          <Image
+            src={carImages.polestar}
+            alt="Luxury Showroom"
+            width={600}
+            height={400}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+          />
+        </div>
+      </motion.div>
+
+    </motion.div>
+
+  </div>
+</section>
+
+  {/* Best Sellers Section */}
+  <section id="best-sellers" className="py-20 bg-gray-50">
+    <div className="mx-auto max-w-6xl px-4">
+      <h2 className="mb-12 text-center text-3xl font-bold">Our Best Sellers</h2>
+      <div className="grid gap-8 md:grid-cols-3">
+        {[
+          { name: 'Alfa Romeo Giulia', description: 'Perfect for business trips and special occasions.', image: carImages.alfa },
+          { name: 'Range Rover Evoque', description: 'Spacious and comfortable for family adventures.', image: carImages.rangeRover },
+          { name: 'Audi S5 Sportback', description: 'Performance and luxury in perfect harmony.', image: carImages.audiS5 },
+        ].map((car, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ scale: 1.05 }}
+            className="overflow-hidden rounded-xl bg-white p-6 shadow-lg"
           >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src={car.image}
+              alt={car.name}
+              width={400}
+              height={300}
+              className="mb-4 h-48 w-full rounded-lg object-cover"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <h3 className="mb-2 text-xl font-bold">{car.name}</h3>
+            <p className="mb-4 text-gray-600">{car.description}</p>
+              <Button className="w-full border border-gray-300 hover:bg-gray-100 transition">
+                Book Now
+              </Button>
+          </motion.div>
+        ))}
+      </div>
     </div>
-  );
+  </section>
+
+  {/* Why Choose Us */}
+  <section className="py-20 bg-white">
+    <div className="mx-auto max-w-6xl px-4">
+      <h2 className="mb-12 text-center text-3xl font-bold">Why Choose Us?</h2>
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {[
+          { title: 'Special Financing Offers', icon: '💰' },
+          { title: 'Trusted Car Dealership', icon: '💎' },
+          { title: 'Transparent Pricing', icon: '🏷️' },
+          { title: 'Expert Car Service', icon: '🚗' },
+        ].map((feature) => (
+          <motion.div
+            key={feature.title}
+            whileHover={{ scale: 1.05 }}
+            className="text-center"
+          >
+            <div className="mb-4 text-4xl">{feature.icon}</div>
+            <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
+            <p className="text-gray-600">
+              Our stress-free finance department can find financial solutions to save you money.
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Latest Cars */}
+  <section className="py-20 bg-gray-50">
+    <div className="mx-auto max-w-6xl px-4">
+      <h2 className="mb-12 text-center text-3xl font-bold">Latest Cars</h2>
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="overflow-hidden rounded-xl bg-white p-6 shadow-lg"
+        >
+          <Image
+            src={carImages.posters}
+            alt="Luxury Car Collection"
+            width={400}
+            height={300}
+            className="mb-4 h-48 w-full rounded-lg object-cover"
+          />
+          <h3 className="mb-2 text-xl font-bold">Premium Collection</h3>
+          <p className="mb-4 text-gray-600">Explore our collection of luxury vehicles from top brands.</p>
+<Button className="w-full border border-gray-300 hover:bg-gray-100 transition">
+  View Collection
+</Button>
+        </motion.div>
+        {[
+          { name: 'Ferrari F8 Tributo', description: 'Experience Italian excellence and performance.', image: carImages.ferrari },
+          { name: 'Tesla Model 3', description: 'The future of electric mobility driven by innovation.', image: carImages.tesla },
+        ].map((car, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ scale: 1.05 }}
+            className="overflow-hidden rounded-xl bg-white p-6 shadow-lg"
+          >
+            <Image
+              src={car.image}
+              alt={car.name}
+              width={400}
+              height={300}
+              className="mb-4 h-48 w-full rounded-lg object-cover"
+            />
+            <h3 className="mb-2 text-xl font-bold">{car.name}</h3>
+            <p className="mb-4 text-gray-600">{car.description}</p>
+            <Button className="w-full border border-gray-300 hover:bg-gray-100 transition">
+  Learn More
+</Button>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Footer */}
+  <footer id="contact" className="bg-gray-900 py-12 text-white">
+    <div className="mx-auto max-w-6xl px-4">
+      <div className="grid gap-8 md:grid-cols-4">
+        <div>
+          <h3 className="mb-4 text-lg font-bold">About CarRental</h3>
+          <p className="text-sm text-gray-400">We offer a wide range of vehicles for all your driving needs. We have the perfect car to meet your needs.</p>
+        </div>
+        <div>
+          <h3 className="mb-4 text-lg font-bold">Company</h3>
+          <ul className="space-y-2 text-sm text-gray-400">
+            <li><a href="#" className="hover:text-white">About Us</a></li>
+            <li><a href="#" className="hover:text-white">Our Services</a></li>
+            <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
+            <li><a href="#" className="hover:text-white">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="mb-4 text-lg font-bold">Working Hours</h3>
+          <ul className="space-y-2 text-sm text-gray-400">
+            <li>Mon - Fri: 9:00AM - 9:00PM</li>
+            <li>Sat: 9:00AM - 7:00PM</li>
+            <li>Sun: Closed</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="mb-4 text-lg font-bold">Contact Us</h3>
+          <ul className="space-y-2 text-sm text-gray-400">
+            <li>123 Car Street, Auto City, CA 90000</li>
+            <li>Email: info@carrental.com</li>
+            <li>Phone: +1 123 456 7890</li>
+          </ul>
+        </div>
+      </div>
+      <div className="mt-8 border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+        © 2023 CarRental. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</div>
+)
 }
