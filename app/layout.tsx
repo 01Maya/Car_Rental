@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Car Rental Website",
-  description: "Car Rental ",
+  description: "A modern car rental web application with a premium UI and smooth user experience.  ",
 };
 
 export default function RootLayout({
