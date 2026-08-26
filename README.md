@@ -1,5 +1,4 @@
-
-# 🚗 Car Rental Website Landing Page 
+# 🚗 Car Rental Website Landing Page ✨
 
 ## 🔹 Overview
 A modern car rental web application with a premium UI and smooth user experience.  
@@ -24,6 +23,7 @@ Designed with modern frontend practices focusing on performance and usability.
 ---
 
 ## 📌 Sections 🗂️
+
 - **Hero Section:** Displays main heading, CTA buttons, and branding.  
 - **Features Section:** Highlights services like pricing, security, and support.  
 - **Brands Section:** Shows trusted car brands.  
